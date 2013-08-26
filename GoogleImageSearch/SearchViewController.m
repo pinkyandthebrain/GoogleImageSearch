@@ -16,6 +16,8 @@
 @property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
 @property (nonatomic, strong) NSMutableArray *imageResults;
 
+
+- (void) fetchData;
 - (void) checkReachability;
 
 @end
@@ -43,7 +45,6 @@
     self.searchResultsView.dataSource = self;
     [self.searchResultsView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"Cell"];
     [self.searchResultsView setBackgroundColor:[UIColor whiteColor]];
-    
 }
 
 - (void)didReceiveMemoryWarning
@@ -97,6 +98,7 @@
 {
     // TODO: Select Item (implement cover flow)
 }
+
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     // TODO: Deselect item
 }
@@ -142,23 +144,24 @@
 {
     [searchBar setShowsCancelButton:NO animated:YES];
     [searchBar resignFirstResponder];
+    [self fetchData];
     
-    [self checkReachability];
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=%@&rsz=8", [searchBar.text stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding]]];
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    
-    AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
-        id results = [JSON valueForKeyPath:@"responseData.results"];
-        if ([results isKindOfClass:[NSArray class]]) {
-            [self.imageResults removeAllObjects];
-            [self.imageResults addObjectsFromArray:results];
-            [self.searchResultsView reloadData];
-        }
-    } failure:nil];
-    
-    [operation start];
 }
 
+#pragma mark - UIScrollView delegates
+
+- (void) scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
+{
+    CGPoint scrollVelocity = [scrollView.panGestureRecognizer velocityInView:self.searchResultsView];
+    if (scrollVelocity.y > 0.0f){
+        NSLog(@"going down");
+    }else if (scrollVelocity.y < 0.0f){
+        NSLog(@"going up");
+        [self fetchData];
+
+    }
+        
+}
 
 #pragma mark - Private methods
 
@@ -168,6 +171,24 @@
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"No internet connection" message:@"Make sure you have internet connection available" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
         [alert show];
     }
+}
+
+- (void) fetchData
+{
+    [self checkReachability];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=%@&rsz=8&start=%d", [self.searchBar.text stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding], self.imageResults.count]];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    
+    AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
+        id results = [JSON valueForKeyPath:@"responseData.results"];
+        if ([results isKindOfClass:[NSArray class]]) {
+            [self.imageResults addObjectsFromArray:results];
+            [self.searchResultsView reloadData];
+        }
+    } failure:nil];
+    
+    [operation start];
+    
 }
 
 
