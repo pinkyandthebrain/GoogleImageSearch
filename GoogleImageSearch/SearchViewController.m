@@ -16,8 +16,6 @@
 @property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
 @property (nonatomic, strong) NSMutableArray *imageResults;
 
-
-- (void) onCancel;
 - (void) checkReachability;
 
 @end
@@ -45,6 +43,7 @@
     self.searchResultsView.dataSource = self;
     [self.searchResultsView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"Cell"];
     [self.searchResultsView setBackgroundColor:[UIColor whiteColor]];
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -96,7 +95,7 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    // TODO: Select Item
+    // TODO: Select Item (implement cover flow)
 }
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     // TODO: Deselect item
@@ -130,9 +129,14 @@
 
 - (void) searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
+    
+    [self.imageResults removeAllObjects];
+    [self.searchResultsView reloadData];
+    searchBar.text = nil;
     [searchBar resignFirstResponder];
     [searchBar setShowsCancelButton:NO animated:YES];
 }
+
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
@@ -157,16 +161,6 @@
 
 
 #pragma mark - Private methods
-
-- (void) onCancel {
-    
-    [self.imageResults removeAllObjects];
-    [self.searchResultsView reloadData];
-    [self.searchBar resignFirstResponder];
-    
-    
-}
-
 
 - (void) checkReachability{
     Reachability *reachability = [Reachability reachabilityForInternetConnection];
