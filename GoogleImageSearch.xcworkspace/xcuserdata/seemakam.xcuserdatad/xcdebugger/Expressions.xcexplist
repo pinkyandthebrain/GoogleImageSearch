@@ -11,6 +11,14 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
+         contextName = "-[SearchViewController checkReachability]:SearchViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "reachability.currentReachabilityStatus">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "-[SearchViewController collectionView:cellForItemAtIndexPath:]:SearchViewController.m">
          <PersistentStrings>
             <PersistentString

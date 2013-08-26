@@ -9,13 +9,16 @@
 #import "SearchViewController.h"
 #import <AFJSONRequestOperation.h>
 #import <UIImageView+AFNetworking.h>
+#import <Reachability.h>
 
 @interface SearchViewController ()
 
 @property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
 @property (nonatomic, strong) NSMutableArray *imageResults;
 
+
 - (void) onCancel;
+- (void) checkReachability;
 
 @end
 
@@ -69,18 +72,26 @@
     NSDictionary *details = self.imageResults[indexPath.item];
     NSString *cellHeight = [details objectForKey:@"tbHeight"];
     NSString *cellWidth = [details objectForKey:@"tbWidth"];
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0,0,[cellWidth integerValue],[cellHeight integerValue])];
+    UIImageView *imageView = nil;
+    const int IMAGE_TAG = 1;
     
-    NSLog(@"Url=%@", [[self.imageResults objectAtIndex:indexPath.item] objectForKey:@"tbUrl"]);
-    [imageView setImageWithURL:[NSURL URLWithString:[[self.imageResults objectAtIndex:indexPath.item] objectForKey:@"tbUrl"]]];
-    [imageView setBackgroundColor:[UIColor whiteColor]];
-    if(imageView.image){
-        NSLog(@"Image = %p", imageView.image);
+    if([cell.contentView viewWithTag:IMAGE_TAG]==nil){
+        imageView = [[UIImageView alloc] init];
+        NSLog(@"Url=%@", [[self.imageResults objectAtIndex:indexPath.item] objectForKey:@"tbUrl"]);
+        if(imageView.image){
+            NSLog(@"Image = %p", imageView.image);
+        }
+        imageView.tag = IMAGE_TAG;
+        [cell.contentView addSubview:imageView];
+    }else{
+        imageView = (UIImageView *)[cell.contentView viewWithTag:IMAGE_TAG];
     }
-    [cell.contentView addSubview:imageView];
     
+    imageView.image=nil;
+    imageView.frame = CGRectMake(0,0,[cellWidth integerValue],[cellHeight integerValue]);
+    [imageView setImageWithURL:[NSURL URLWithString:[[self.imageResults objectAtIndex:indexPath.item] objectForKey:@"tbUrl"]]];
     return cell;
-
+    
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
@@ -100,8 +111,7 @@
     NSString *cellHeight = [details objectForKey:@"tbHeight"];
     NSString *cellWidth = [details objectForKey:@"tbWidth"];
     
-    CGSize retval = [cellWidth integerValue] > 0 ? CGSizeMake([cellWidth integerValue], [cellHeight integerValue]) : CGSizeMake(100, 100);
-    return retval;
+    return CGSizeMake([cellWidth integerValue], [cellHeight integerValue]);
 }
 
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
@@ -114,6 +124,8 @@
 - (void) searchBarTextDidBeginEditing:(UISearchBar *)searchBar
 {
     [searchBar setShowsCancelButton:YES animated:YES];
+    [self.imageResults removeAllObjects];
+    [self.searchResultsView clearsContextBeforeDrawing];
 }
 
 - (void) searchBarCancelButtonClicked:(UISearchBar *)searchBar
@@ -127,7 +139,8 @@
     [searchBar setShowsCancelButton:NO animated:YES];
     [searchBar resignFirstResponder];
     
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=%@", [searchBar.text stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding]]];
+    [self checkReachability];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=%@&rsz=8", [searchBar.text stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding]]];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     
     AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
@@ -147,11 +160,21 @@
 
 - (void) onCancel {
     
+    [self.imageResults removeAllObjects];
+    [self.searchResultsView reloadData];
     [self.searchBar resignFirstResponder];
     
     
 }
 
+
+- (void) checkReachability{
+    Reachability *reachability = [Reachability reachabilityForInternetConnection];
+    if(reachability.currentReachabilityStatus == NotReachable){
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"No internet connection" message:@"Make sure you have internet connection available" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [alert show];
+    }
+}
 
 
 @end

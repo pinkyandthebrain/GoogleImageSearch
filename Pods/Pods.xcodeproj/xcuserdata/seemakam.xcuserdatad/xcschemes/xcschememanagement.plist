@@ -14,6 +14,11 @@
 			<key>orderHint</key>
 			<integer>2</integer>
 		</dict>
+		<key>Pods-Reachability.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
 		<key>Pods.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -22,7 +27,27 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>06000918197D45C59147400B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>2D7FCA0365DB48128F8AB48A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>4578B4FA99264D38BC84A8CC</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>5DF0303816EC4C5597E2B9F5</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>95E1C597A72547A8874091E8</key>
 		<dict>
 			<key>primary</key>
 			<true/>
