@@ -97,6 +97,7 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    [self.searchBar resignFirstResponder];
     // TODO: Select Item (implement cover flow)
 }
 
@@ -126,8 +127,13 @@
 - (void) searchBarTextDidBeginEditing:(UISearchBar *)searchBar
 {
     [searchBar setShowsCancelButton:YES animated:YES];
-    [self.imageResults removeAllObjects];
-    [self.searchResultsView clearsContextBeforeDrawing];
+    // [self.imageResults removeAllObjects];
+    //[self.searchResultsView clearsContextBeforeDrawing];
+}
+
+- (void) searchBarTextDidEndEditing:(UISearchBar *)searchBar
+{
+    [searchBar resignFirstResponder];
 }
 
 - (void) searchBarCancelButtonClicked:(UISearchBar *)searchBar
@@ -143,13 +149,19 @@
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
+    [self.imageResults removeAllObjects];
+    [self.searchResultsView reloadData];
     [searchBar setShowsCancelButton:NO animated:YES];
     [searchBar resignFirstResponder];
+    [self fetchData];
     [self fetchData];
     
 }
 
 #pragma mark - UIScrollView delegates
+
+
+
 
 - (void) scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
 {
@@ -163,9 +175,10 @@
         NSLog(@"going up");
 #endif
         [self fetchData];
-
-    }
+        [self fetchData];
         
+    }
+    
 }
 
 #pragma mark - Private methods
@@ -187,8 +200,10 @@
     AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
         id results = [JSON valueForKeyPath:@"responseData.results"];
         if ([results isKindOfClass:[NSArray class]]) {
-            [self.imageResults addObjectsFromArray:results];
-            [self.searchResultsView reloadData];
+            //[self.searchResultsView performBatchUpdates:^{
+                [self.imageResults addObjectsFromArray:results];
+                [self.searchResultsView reloadData];
+                //    } completion:nil];
         }
     } failure:nil];
     
