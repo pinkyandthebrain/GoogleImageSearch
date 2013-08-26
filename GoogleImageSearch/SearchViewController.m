@@ -11,6 +11,8 @@
 #import <UIImageView+AFNetworking.h>
 #import <Reachability.h>
 
+#define DEBUGGING 0
+
 @interface SearchViewController ()
 
 @property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
@@ -77,10 +79,9 @@
     
     if([cell.contentView viewWithTag:IMAGE_TAG]==nil){
         imageView = [[UIImageView alloc] init];
+#if DEBUGGING
         NSLog(@"Url=%@", [[self.imageResults objectAtIndex:indexPath.item] objectForKey:@"tbUrl"]);
-        if(imageView.image){
-            NSLog(@"Image = %p", imageView.image);
-        }
+#endif
         imageView.tag = IMAGE_TAG;
         [cell.contentView addSubview:imageView];
     }else{
@@ -117,7 +118,7 @@
 
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
 {
-    return UIEdgeInsetsMake(0, 0, 0, 0);
+    return UIEdgeInsetsMake(10, 10, 10, 10);
 }
 
 #pragma mark - UISearchBar delegates
@@ -154,9 +155,13 @@
 {
     CGPoint scrollVelocity = [scrollView.panGestureRecognizer velocityInView:self.searchResultsView];
     if (scrollVelocity.y > 0.0f){
+#if DEBUGGING
         NSLog(@"going down");
+#endif
     }else if (scrollVelocity.y < 0.0f){
+#if DEBUGGING
         NSLog(@"going up");
+#endif
         [self fetchData];
 
     }
