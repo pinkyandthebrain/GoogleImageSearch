@@ -154,8 +154,7 @@
     [searchBar setShowsCancelButton:NO animated:YES];
     [searchBar resignFirstResponder];
     [self fetchData];
-    [self fetchData];
-    
+
 }
 
 #pragma mark - UIScrollView delegates
@@ -166,17 +165,11 @@
 - (void) scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
 {
     CGPoint scrollVelocity = [scrollView.panGestureRecognizer velocityInView:self.searchResultsView];
-    if (scrollVelocity.y > 0.0f){
-#if DEBUGGING
-        NSLog(@"going down");
-#endif
-    }else if (scrollVelocity.y < 0.0f){
+    if (scrollView.contentOffset.y > (self.searchResultsView.contentSize.height - self.searchResultsView.frame.size.height-50)){
 #if DEBUGGING
         NSLog(@"going up");
 #endif
         [self fetchData];
-        [self fetchData];
-        
     }
     
 }
